@@ -9,7 +9,9 @@
             "email": "904110231@qq.com"
         }
     ],
-    "require": {},
+    "require": {
+        "php": "7.0"
+    },
     "autoload": {
         "psr-4": {
             "ZoranWang\\LaraRoutesManager\\": "src"

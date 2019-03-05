@@ -1,0 +1,18 @@
+{
+    "name": "zoran-wang/lara-routes-manager",
+    "description": "Use A manager to manage all routes for laravel/lumen",
+    "type": "metapackage",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ZoranWong",
+            "email": "904110231@qq.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "prs-4": {
+            "ZoranWang\\LaraRoutesManager": "src"
+        }
+    }
+}

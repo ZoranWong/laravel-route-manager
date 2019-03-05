@@ -11,7 +11,7 @@
     ],
     "require": {},
     "autoload": {
-        "prs-4": {
+        "psr-4": {
             "ZoranWang\\LaraRoutesManager": "src"
         }
     }

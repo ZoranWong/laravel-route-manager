@@ -25,6 +25,8 @@ class RoutesManagerServiceProvider extends ServiceProvider
             if(!file_exists($path)) {
                 @mkdir($path);
             }
+
+            $this->commands(CreateRoutGeneratorCommand::class);
         }
 
         $this->app->singleton('domain', function ($app) {

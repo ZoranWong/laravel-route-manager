@@ -7,17 +7,26 @@
  */
 namespace $NAMESPACE$;
 use ZoranWang\LaraRoutesManager\RouteGenerator;
-class $ROUTE_GENERATOR$ extends RouteGenerator
+
+
+class $ROUTEGENERATOR$ extends RouteGenerator
 {
+
+    /**
+    *@param $ROUTERCLASS$ $router
+    **/
     protected function auth($router)
     {
         // TODO: Implement auth() method.
-        $AUTH_ROUTES$
+        $AUTHROUTES$
     }
 
+    /**
+    *@param $ROUTERCLASS$ $router
+    **/
     protected function normal($router)
     {
         // TODO: Implement normal() method.
-        $NORMAL_ROUTES$
+        $NORMALROUTES$
     }
 }

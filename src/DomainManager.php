@@ -55,12 +55,21 @@ class DomainManager
      * */
     protected $port = '80';
 
-    public function __construct($app, array $domains)
+    protected $root = null;
+
+    protected $namespace = null;
+
+    public function __construct($app, array $domains, $root = 'app/Routes', $namespace = 'App\\Routes')
     {
         $this->domains = collect();
         collect($domains)->map(function ($config) {
-            $domain = new Domain($this->app, $this, $config['domain'], $config['router'],
-                $config['request'], $config['gateways'], $config['providers']);
+            $domain = new Domain($this->app,
+                $this,
+                $config['domain'],
+                $config['router'],
+                $config['request'],
+                $config['gateways'],
+                $config['providers']);
             $this->domains->put($config['domain'], $domain);
         });
         $this->app = $app;
@@ -68,6 +77,9 @@ class DomainManager
         $this->path = $_SERVER['PATH_INFO'];
         $this->protocol = $_SERVER['SERVER_PROTOCOL'];
         $this->port = $_SERVER['SERVER_PORT'];
+
+        $this->root = $root;
+        $this->namespace = $namespace;
     }
 
     public function domainValid(string $domain)

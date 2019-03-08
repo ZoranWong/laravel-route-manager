@@ -10,6 +10,7 @@ namespace ZoranWang\LaraRoutesManager;
 
 
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
 
 class GatewayManager
@@ -25,14 +26,22 @@ class GatewayManager
     protected $gateways = [];
 
     /**
+     * @var Router $router
+     * */
+    protected $router = null;
+
+    /**
      * @var Domain $domain
      * */
     protected $domain = null;
 
-    public function __construct($app, Domain $domain, Collection $gateways)
+    protected $path = null;
+
+    public function __construct($app, Domain $domain, Collection $gateways, $router, string $path)
     {
         $this->app = $app;
         $this->domain = $domain;
+        $this->path = $path;
         $this->gateways = collect();
         $gateways->map(function ($config) {
             $gateway = new Gateway();
@@ -55,13 +64,12 @@ class GatewayManager
     }
 
     /**
-     * @param string $path
      * @throws
      */
-    public function generateRoutes(string $path)
+    public function boot()
     {
-        if(($gateway = $this->get($path))) {
-            $gateway->loadRoutes();
+        if(($gateway = $this->get($this->path))) {
+            $gateway->boot();
         }else{
             throw new GatewayNotFoundException();
         }

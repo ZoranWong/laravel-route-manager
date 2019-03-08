@@ -14,6 +14,7 @@ return [
             'providers' => [],
             'middleware' => [],
             'auth' => null,
+            'version' => 'v1',
             'gateways' =>[
                 [
                     'gateway' => env('EXAMPLE_API_GATEWAY', 'example'),
@@ -26,7 +27,6 @@ return [
                         'router' => env('API_ROUTER', 'router'),
                         'request' => env('API_REQUEST', 'request'),
                         'generator' => '',
-                        'version' => '',
                         'namespace' => null,
                         'auth' => null,
                         'middleware' => [],

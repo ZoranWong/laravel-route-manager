@@ -23,7 +23,10 @@ class Gateway
 
     protected $manager = null;
 
-    public function loadRoutes()
+    /**
+     * @throws
+     * */
+    public function boot()
     {
         $routeGeneratorClass = $this->routeGenerator;
         $routeGeneratorClass = preg_replace($this->namespace, '', $routeGeneratorClass);

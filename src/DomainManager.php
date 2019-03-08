@@ -64,16 +64,7 @@ class DomainManager
         $this->app = $app;
 
         $this->domains = collect();
-        collect($domains)->map(function ($config) {
-            $domain = new Domain($this->app,
-                $this,
-                $config['domain'],
-                $config['router'],
-                $config['request'],
-                $config['gateways'],
-                $config['providers']);
-            $this->domains->put($config['domain'], $domain);
-        });
+
         if(isset($_SERVER['SERVER_NAME'])) {
             $this->domain = $_SERVER['SERVER_NAME'];
         }
@@ -89,10 +80,21 @@ class DomainManager
             $this->port = $_SERVER['SERVER_PORT'];
         }
 
-
-
         $this->root = $root;
         $this->namespace = $namespace;
+
+        collect($domains)->map(function ($config) {
+            $domain = new Domain($this->app,
+                $this,
+                $config['domain'],
+                $config['router'],
+                $config['request'],
+                $config['gateways'],
+                $config['providers'],
+                $this->path);
+
+            $this->domains->put($config['domain'], $domain);
+        });
     }
 
     public function domainValid(string $domain)
@@ -116,7 +118,7 @@ class DomainManager
     public function boot()
     {
         if(($domain = $this->get($this->domain))) {
-            $domain->gatewayManager->generateRoutes($this->path);
+            $domain->boot();
         }else{
             throw new DomainNotFoundException();
         }

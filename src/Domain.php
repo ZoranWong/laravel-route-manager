@@ -11,6 +11,7 @@ namespace ZoranWang\LaraRoutesManager;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +27,8 @@ class Domain
      * */
     protected $providers = [];
 
+    protected $middleware = [];
+
     /**
      * @var Container|Application|null $app
      * */
@@ -33,6 +36,9 @@ class Domain
 
     protected $request = null;
 
+    /**
+     * @var Router $router
+     * */
     protected $router = null;
 
     /**
@@ -50,7 +56,9 @@ class Domain
      * */
     protected $gateways = null;
 
-    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers)
+    protected $path = null;
+
+    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers, string $path)
     {
         $this->app = $app;
         $this->manager = $manager;
@@ -59,6 +67,7 @@ class Domain
         $this->request = $this->app->get($request);
         $this->gateways = collect($gateways);
         $this->providers = collect($providers);
+        $this->path = $path;
         $this->initialization();
     }
 
@@ -67,8 +76,15 @@ class Domain
         $this->providers->map(function ($provider) {
             $this->app->register($provider);
         });
+        $this->gatewayManager = new GatewayManager($this->app, $this, $this->gateways, $this->router, $this->path);
+    }
 
-        $this->gatewayManager = new GatewayManager($this->app, $this, $this->gateways);
+    /**
+     * @throws
+     * */
+    public function boot()
+    {
+        $this->gatewayManager->boot();
     }
 
     public function __get($name)

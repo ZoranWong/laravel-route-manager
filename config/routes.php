@@ -12,29 +12,19 @@ return [
             'router' => env('API_ROUTER', 'router'),
             'request' => env('API_REQUEST', 'request'),
             'providers' => [],
+            'middleware' => [],
+            'auth' => null,
             'gateways' =>[
                 [
                     'gateway' => env('EXAMPLE_API_GATEWAY', 'example'),
+                    'router' => env('API_ROUTER', 'router'),
+                    'request' => env('API_REQUEST', 'request'),
+                    'providers' => [],
+                    'middleware' => [],
+                    'auth' => null,
                     'route' => [
-                        'generator' => '',
-                        'version' => '',
-                        'namespace' => null,
-                        'auth' => null,
-                        'middleware' => [],
-                        'providers' => []
-                    ]
-                ]
-            ]
-        ],
-        [
-            'domain' => env('WEB_DOMAIN', 'web'),
-            'router' => env('WEB_ROUTER', 'router'),
-            'request' => env('WEB_REQUEST', 'request'),
-            'providers' => [],
-            'gateways' => [
-                [
-                    'gateway' => env('EXAMPLE_WEB_GATEWAY', 'example'),
-                    'route' => [
+                        'router' => env('API_ROUTER', 'router'),
+                        'request' => env('API_REQUEST', 'request'),
                         'generator' => '',
                         'version' => '',
                         'namespace' => null,

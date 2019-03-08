@@ -21,15 +21,15 @@ class Gateway
 
     protected $route = null;
 
-    protected $manager = nulll;
+    protected $manager = null;
 
     public function loadRoutes()
     {
         $routeGeneratorClass = $this->routeGenerator;
+        $routeGeneratorClass = preg_replace($this->namespace, '', $routeGeneratorClass);
         $routeGeneratorClass = preg_replace('\\', '/', $routeGeneratorClass);
-        $namespace = preg_replace('\\', '/', $this->namespace);
         if(!class_exists($this->routeGenerator)) {
-            $path = trim($this->root, '/').'/'.trim(substr($routeGeneratorClass, strlen($namespace)), '/').'.php';
+            $path = trim($this->root, '/').'/'.trim($routeGeneratorClass, '/').'.php';
             /** @noinspection PhpIncludeInspection */
             include_once base_path($path);
         }

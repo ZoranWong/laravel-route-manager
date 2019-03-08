@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpIncludeInspection */
+
 /**
  * Created by PhpStorm.
  * User: wangzaron
@@ -15,6 +16,17 @@ class RoutesManagerServiceProvider extends ServiceProvider
 {
     public function register()
     {
+        if($this->app->runningInConsole()) {
+            if(!($config = config('routes', null))) {
+                $this->mergeConfigFrom(realpath(__DIR__.'/../config/routes.php'), 'routes');
+                $this->publishes([realpath(__DIR__.'/../config/routes.php') => config_path('routes.php')]);
+            }
+            $path = base_path(config('routes.root'));
+            if(!file_exists($path)) {
+                @mkdir($path);
+            }
+        }
+
         $this->app->singleton('domain', function ($app) {
             return new DomainManager($app,
                 config('routes.domains'),
@@ -25,13 +37,8 @@ class RoutesManagerServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        if($this->app->runningInConsole()) {
-            $this->publishes([realpath(__DIR__.'/../config/routes.php') => config_path('routes.php')]);
-            if(file_exists(config('routes.root'))) {
-                @mkdir(base_path(config('routes.root')));
-            }
+        if(!$this->app->runningInConsole()) {
+            $this->app->get('domain')->boot();
         }
-
-        $this->app->get('domain')->boot();
     }
 }

@@ -1,0 +1,23 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: wangzaron
+ * Date: 2019/3/8
+ * Time: 3:23 PM
+ */
+namespace $NAMESPACE$;
+use ZoranWang\LaraRoutesManager\RouteGenerator;
+class $ROUTE_GENERATOR$ extends RouteGenerator
+{
+    protected function auth($router)
+    {
+        // TODO: Implement auth() method.
+        $AUTH_ROUTES$
+    }
+
+    protected function normal($router)
+    {
+        // TODO: Implement normal() method.
+        $NORMAL_ROUTES$
+    }
+}

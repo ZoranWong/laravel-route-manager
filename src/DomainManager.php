@@ -61,6 +61,8 @@ class DomainManager
 
     public function __construct($app, array $domains, $root = 'app/Routes', $namespace = 'App\\Routes')
     {
+        $this->app = $app;
+
         $this->domains = collect();
         collect($domains)->map(function ($config) {
             $domain = new Domain($this->app,
@@ -72,11 +74,22 @@ class DomainManager
                 $config['providers']);
             $this->domains->put($config['domain'], $domain);
         });
-        $this->app = $app;
-        $this->domain = $_SERVER['SERVER_NAME'];
-        $this->path = $_SERVER['PATH_INFO'];
-        $this->protocol = $_SERVER['SERVER_PROTOCOL'];
-        $this->port = $_SERVER['SERVER_PORT'];
+        if(isset($_SERVER['SERVER_NAME'])) {
+            $this->domain = $_SERVER['SERVER_NAME'];
+        }
+
+        if(isset($_SERVER['PATH_INFO'])) {
+            $this->path = $_SERVER['PATH_INFO'];
+        }
+
+        if(isset($_SERVER['SERVER_PROTOCOL'])) {
+            $this->protocol = $_SERVER['SERVER_PROTOCOL'];
+        }
+        if(isset($_SERVER['SERVER_PORT'])) {
+            $this->port = $_SERVER['SERVER_PORT'];
+        }
+
+
 
         $this->root = $root;
         $this->namespace = $namespace;

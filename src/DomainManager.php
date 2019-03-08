@@ -46,16 +46,6 @@ class DomainManager
     protected $path = null;
 
     /**
-     * @var string $request
-     * */
-    protected $request = null;
-
-    /**
-     * @var string $router
-     * */
-    protected $router = null;
-
-    /**
      * @var string|[] $protocol 协议
      * */
     protected $protocol = 'http';
@@ -67,7 +57,12 @@ class DomainManager
 
     public function __construct($app, array $domains)
     {
-        $this->domains = collect($domains);
+        $this->domains = collect();
+        collect($domains)->map(function ($config) {
+            $domain = new Domain($this->app, $this, $config['domain'], $config['router'],
+                $config['request'], $config['gateways'], $config['providers']);
+            $this->domains->put($config['domain'], $domain);
+        });
         $this->app = $app;
         $this->domain = $_SERVER['SERVER_NAME'];
         $this->path = $_SERVER['PATH_INFO'];
@@ -80,66 +75,26 @@ class DomainManager
         return $this->get($domain) !== null;
     }
 
+    /**
+     * @param string $domain
+     * @return Domain|null
+     * */
     public function get($domain)
     {
-        return ($key = $this->domains->search(function (array $item) use($domain){
-            return $item['domain'] === $domain;
-        })) !== false ? $key : null;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDomain() : string
-    {
-        return $this->domain;
-    }
-
-    /**
-     * @return string 端口
-     */
-    public function getPort(): string
-    {
-        return $this->port;
-    }
-
-    /**
-     * @return string
-     */
-    public function getProtocol(): string
-    {
-        return $this->protocol;
+        return $this->domains->get($domain) ?: null;
     }
 
     /**
      * 启动路由服务
-     * @throws DomainNotFoundException
-     * @throws GatewayNotFoundException
-     * @throws PortInvalidException
-     * @throws ProtocolInvalidException
-     * @throws RouterNotFoundException
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws
      */
     public function boot()
     {
-        $gatewaysConfig = $this->get($this->domain);
-        if(!$gatewaysConfig) {
+        if(($domain = $this->get($this->domain))) {
+            $domain->gatewayManager->generateRoutes($this->path);
+        }else{
             throw new DomainNotFoundException();
         }
-        /** @var GatewayManager $gateway */
-        $gateway = $this->app->get('gateway');
-        $gateway->setRequest($gatewaysConfig['request'])
-            ->setRouter($gatewaysConfig['router'])
-            ->setGateways($gatewaysConfig['gateways'])
-            ->generateRoutes($this->path);
     }
 
 }

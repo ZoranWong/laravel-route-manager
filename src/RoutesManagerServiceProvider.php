@@ -18,10 +18,6 @@ class RoutesManagerServiceProvider extends ServiceProvider
         $this->app->singleton('domain', function ($app) {
             return new DomainManager($app, config('routes'));
         });
-
-        $this->app->singleton('gateway', function ($app) {
-            return new GatewayManager($app, app('domain'));
-        });
     }
 
     public function boot()

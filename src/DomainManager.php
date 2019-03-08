@@ -38,7 +38,7 @@ class DomainManager
     /**
      * @var string $domain
      * */
-    protected $domain = null;
+    protected $serverName = null;
 
     /**
      * @var string $path
@@ -66,7 +66,7 @@ class DomainManager
         $this->domains = collect();
 
         if(isset($_SERVER['SERVER_NAME'])) {
-            $this->domain = $_SERVER['SERVER_NAME'];
+            $this->serverName = $_SERVER['SERVER_NAME'];
         }
 
         if(isset($_SERVER['PATH_INFO'])) {
@@ -91,6 +91,7 @@ class DomainManager
                 $config['request'],
                 $config['gateways'],
                 $config['providers'],
+                $this->serverName,
                 $this->path);
 
             $this->domains->put($config['domain'], $domain);
@@ -117,7 +118,7 @@ class DomainManager
      */
     public function boot()
     {
-        if(($domain = $this->get($this->domain))) {
+        if(($domain = $this->get($this->serverName))) {
             $domain->boot();
         }else{
             throw new DomainNotFoundException();

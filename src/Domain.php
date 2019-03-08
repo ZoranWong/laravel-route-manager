@@ -56,9 +56,13 @@ class Domain
      * */
     protected $gateways = null;
 
+    protected $serverName = null;
+
     protected $path = null;
 
-    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers, string $path)
+    protected $inited = false;
+
+    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers, string $serverName, string $path)
     {
         $this->app = $app;
         $this->manager = $manager;
@@ -67,16 +71,20 @@ class Domain
         $this->request = $this->app->get($request);
         $this->gateways = collect($gateways);
         $this->providers = collect($providers);
+        $this->serverName = $serverName;
         $this->path = $path;
         $this->initialization();
     }
 
     public function initialization()
     {
-        $this->providers->map(function ($provider) {
-            $this->app->register($provider);
-        });
-        $this->gatewayManager = new GatewayManager($this->app, $this, $this->gateways, $this->router, $this->path);
+        if($this->active() && !$this->inited) {
+            $this->inited = false;
+            $this->providers->map(function ($provider) {
+                $this->app->register($provider);
+            });
+            $this->gatewayManager = new GatewayManager($this->app, $this, $this->gateways, $this->router, $this->path);
+        }
     }
 
     /**
@@ -91,5 +99,10 @@ class Domain
     {
         // TODO: Implement __get() method.
         return $this->{$name};
+    }
+
+    public function active()
+    {
+        return $this->domain === $this->serverName;
     }
 }

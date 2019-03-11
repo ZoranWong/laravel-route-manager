@@ -23,14 +23,16 @@ return [
                     'providers' => [],
                     'middleware' => [],
                     'auth' => null,
-                    'route' => [
-                        'router' => env('API_ROUTER', 'router'),
-                        'request' => env('API_REQUEST', 'request'),
-                        'generator' => '',
-                        'namespace' => null,
-                        'auth' => null,
-                        'middleware' => [],
-                        'providers' => []
+                    'routes' =>[
+                        [
+                            'router' => env('API_ROUTER', 'router'),
+                            'request' => env('API_REQUEST', 'request'),
+                            'generator' => '',
+                            'namespace' => null,
+                            'auth' => null,
+                            'middleware' => [],
+                            'providers' => []
+                        ]
                     ]
                 ]
             ]

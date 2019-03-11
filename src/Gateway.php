@@ -7,10 +7,20 @@
  */
 
 namespace ZoranWang\LaraRoutesManager;
+use Illuminate\Support\Collection;
 
 
+/**
+ * @property-read string $gateway
+ * @property-read string $middleware
+ *
+ * */
 class Gateway
 {
+    protected $app = null;
+
+    protected $domain = null;
+
     protected $routeGenerator = null;
 
     protected $namespace = null;
@@ -19,9 +29,33 @@ class Gateway
 
     protected $gateway = null;
 
-    protected $route = null;
+    /**
+     * @var Collection|RouteGenerator[] $routes
+     * */
+    protected $routes = [];
 
     protected $manager = null;
+
+    protected $activeRouteGenerator = null;
+
+    public function __construct($app, Domain $domain, GatewayManager $manager, Collection $routes)
+    {
+        $this->app = $app;
+        $this->domain = $domain;
+        $this->manager = $manager;
+        $this->routes = $routes->map(function ($routeConfig) {
+            /** @var RouteGenerator $routeGenerator */
+            $routeGenerator = new $routeConfig['generator']();
+            if($routeGenerator->isActive()) {
+                $this->activeRouteGenerator = $routeGenerator;
+            }
+        });
+    }
+
+    public function isActive()
+    {
+        return preg_match("/^{$this->gateway}/", trim($this->domain->path, '/')) || $this->activeRouteGenerator;
+    }
 
     /**
      * @throws

@@ -13,6 +13,9 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\Router;
 
+/**
+ * @property-read string $version
+ * */
 abstract class RouteGenerator
 {
     /**
@@ -31,7 +34,7 @@ abstract class RouteGenerator
     protected $auth = null;
 
     /**
-     * @var string $gateway 路由网关（域名后面的）
+     * @var Gateway $gateway 路由网关（域名后面的）
      * */
     protected $gateway = null;
 
@@ -51,11 +54,11 @@ abstract class RouteGenerator
     protected $app = null;
 
     /**
-     * @var string $domain 域名
+     * @var Domain $domain 域名
      * */
     protected $domain = null;
 
-    public function __construct($app, string  $domain, string $namespace, string $version, string $gateway, string $auth, array $middleware, string $router)
+    public function __construct($app, Domain  $domain, Gateway $gateway, string $namespace, string $version, string $auth, array $middleware, string $router)
     {
         $this->app = $app;
         $this->domain = $domain;
@@ -75,15 +78,46 @@ abstract class RouteGenerator
     {
         /** @var Router $router */
         try {
+            /** @var Router $router */
             $router = $this->app->make($this->router);
-            $router->group(['domain' => $this->domain, 'version' => $this->version], function ($router) {
-                $this->normal($router);
-                $this->auth($router);
-            });
 
+            $router->domain($this->domain->domain)->prefix("$this->version/$this->gateway");
         } catch (BindingResolutionException $e) {
             throw new RouterNotFoundException();
         }
+    }
+
+    public function isActive()
+    {
+        return false;
+    }
+
+    /**
+     * @param Router $router
+     * */
+    protected function addDomainToRouter($router)
+    {
+        $router->domain($this->domain->domain)->middleware($this->domain->middleware)->group(function (Router $router) {
+            $this->addGatewayToRouter($router);
+        });
+    }
+
+    /**
+     * @param Router $router
+     * */
+    protected function addGatewayToRouter($router)
+    {
+        $prefix = $this->version ? "{$this->version}/{$this->gateway->gateway}" : $this->gateway->gateway;
+       $router->prefix($prefix)->middleware($this->gateway->middleware)->group(function ($router) {
+           $this->auth($router);
+           $this->normal($router);
+       });
+    }
+
+    public function __get($name)
+    {
+        // TODO: Implement __get() method.
+        return $this->{$name};
     }
 
     /**

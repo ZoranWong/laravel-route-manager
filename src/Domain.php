@@ -14,9 +14,17 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @property-read string $domain
+ * @property-read Collection|null $gateways
  * @property-read GatewayManager $gatewayManager
+ * @property-read Request $request
+ * @property-read Router $router
+ * @property-read Collection|null $middleware
+ * @property-read string $path
+ * @property-read  string $serverName
  * */
 class Domain
 {
@@ -34,6 +42,9 @@ class Domain
      * */
     protected $app  = null;
 
+    /**
+     * @var Request $request
+     * */
     protected $request = null;
 
     /**
@@ -52,14 +63,23 @@ class Domain
     protected $manager = null;
 
     /**
-     * @var Collection|null $gateways
+     * @var Collection|[]|null $gateways
      * */
     protected $gateways = null;
 
+    /**
+     * @var string $serverName 访问主机域名
+     * */
     protected $serverName = null;
 
+    /**
+     * @var string $path 访问路径
+     * */
     protected $path = null;
 
+    /**
+     * @var boolean $inited 是否初始化
+     * */
     protected $inited = false;
 
     public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers, string $serverName, string $path)
@@ -83,7 +103,7 @@ class Domain
             $this->providers->map(function ($provider) {
                 $this->app->register($provider);
             });
-            $this->gatewayManager = new GatewayManager($this->app, $this, $this->gateways, $this->router, $this->path);
+            $this->gatewayManager = new GatewayManager($this->app, $this);
         }
     }
 

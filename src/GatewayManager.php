@@ -37,16 +37,18 @@ class GatewayManager
 
     protected $path = null;
 
-    public function __construct($app, Domain $domain, Collection $gateways, $router, string $path)
+    public function __construct($app, Domain $domain)
     {
         $this->app = $app;
         $this->domain = $domain;
-        $this->path = $path;
+        $this->path = $this->domain->path;
         $this->gateways = collect();
-        $gateways->map(function ($config) {
-            $gateway = new Gateway();
-            $this->gateways->put($config['gateway'], $gateway);
-        });
+        if(!empty($this->domain->gateways)) {
+            $this->domain->gateways->map(function ($config) {
+                $gateway = new Gateway();
+                $this->gateways->put($config['gateway'], $gateway);
+            });
+        }
     }
 
     /**

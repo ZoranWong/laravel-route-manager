@@ -9,6 +9,7 @@
 namespace ZoranWang\LaraRoutesManager;
 
 
+use function Clue\StreamFilter\fun;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
@@ -37,27 +38,27 @@ class GatewayManager
 
     protected $path = null;
 
-    public function __construct($app, Domain $domain)
+    public function __construct($app, Domain $domain, Collection $gateways)
     {
         $this->app = $app;
         $this->domain = $domain;
         $this->path = $this->domain->path;
-        $this->gateways = collect();
+        $this->gateways = $gateways;
         if(!empty($this->domain->gateways)) {
             $this->domain->gateways->map(function ($config) {
-                $gateway = new Gateway();
-                $this->gateways->put($config['gateway'], $gateway);
+                $gateway = new Gateway($this->app, $this->domain, $this, collect($config['routes']));
+                $this->gateways->add($gateway);
             });
         }
     }
 
     /**
      * @param string $gateway
-     * @return Gateway|null
+     * @return Gateway[]|Collection
      * */
     public function get(string $gateway)
     {
-        return $this->gateways->get($gateway) ?: null;
+        return $this->gateways->where('gateway', '=', $gateway) ?: null;
     }
 
     public function gatewayValid(string $gateway)
@@ -70,9 +71,14 @@ class GatewayManager
      */
     public function boot()
     {
-        if(($gateway = $this->get($this->path))) {
+        $booted = false;
+        $this->gateways->map(function (Gateway $gateway) use(&$booted){
             $gateway->boot();
-        }else{
+            if($gateway->inited) {
+                $booted = true;
+            }
+        });
+        if(!$booted){
             throw new GatewayNotFoundException();
         }
     }

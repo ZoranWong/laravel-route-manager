@@ -82,7 +82,31 @@ class Domain
      * */
     protected $inited = false;
 
-    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers, string $serverName, string $path)
+    protected $protocols = ['http', 'https'];
+
+    protected $ports = ['80'];
+
+    protected $protocol = null;
+
+    protected $port = null;
+
+    /**
+     * @param Container $app
+     * @param DomainManager $manager
+     * @param string $domain
+     * @param string $router
+     * @param string $request
+     * @param array $gateways
+     * @param array $providers
+     * @param string $serverName
+     * @param string $path
+     * @param array|null $protocols
+     * @param array|null $ports
+     * @param string $protocol
+     * @param string $port
+     */
+    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers,
+                                string $serverName, string $path, array $protocols = null, array $ports = null, string $protocol = 'http', string $port = '80')
     {
         $this->app = $app;
         $this->manager = $manager;
@@ -93,6 +117,10 @@ class Domain
         $this->providers = collect($providers);
         $this->serverName = $serverName;
         $this->path = $path;
+        $this->protocols = $protocols;
+        $this->ports = $ports;
+        $this->protocol = $protocol;
+        $this->port = $port;
         $this->initialization();
     }
 
@@ -103,7 +131,7 @@ class Domain
             $this->providers->map(function ($provider) {
                 $this->app->register($provider);
             });
-            $this->gatewayManager = new GatewayManager($this->app, $this);
+            $this->gatewayManager = new GatewayManager($this->app, $this, $this->gateways);
         }
     }
 
@@ -123,6 +151,12 @@ class Domain
 
     public function active()
     {
-        return $this->domain === $this->serverName;
+        return !in_array($this->protocol, $this->protocols) && !in_array($this->port, $this->ports) && $this->domain === $this->serverName;
+    }
+
+    public function __toString()
+    {
+        // TODO: Implement __toString() method.
+        return $this->domain;
     }
 }

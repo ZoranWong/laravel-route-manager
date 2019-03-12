@@ -14,7 +14,8 @@ return [
             'providers' => [],
             'middleware' => [],
             'auth' => null,
-            'version' => 'v1',
+            'protocols' => null,
+            'ports' => null,
             'gateways' =>[
                 [
                     'gateway' => env('EXAMPLE_API_GATEWAY', 'example'),
@@ -31,7 +32,8 @@ return [
                             'namespace' => null,
                             'auth' => null,
                             'middleware' => [],
-                            'providers' => []
+                            'providers' => [],
+                            'version' => 'v1'
                         ]
                     ]
                 ]

@@ -9,6 +9,8 @@
 namespace ZoranWang\LaraRoutesManager;
 
 
+use function Clue\StreamFilter\fun;
+use function foo\func;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
 
@@ -94,7 +96,7 @@ class DomainManager
                 $this->serverName,
                 $this->path);
 
-            $this->domains->put($config['domain'], $domain);
+            $this->domains->add($domain);
         });
     }
 
@@ -105,11 +107,11 @@ class DomainManager
 
     /**
      * @param string $domain
-     * @return Domain|null
+     * @return Domain[]|Collection
      * */
     public function get($domain)
     {
-        return $this->domains->get($domain) ?: null;
+        return $this->domains->when('domain', '=', $domain) ?: null;
     }
 
     /**
@@ -118,9 +120,14 @@ class DomainManager
      */
     public function boot()
     {
-        if(($domain = $this->get($this->serverName))) {
-            $domain->boot();
-        }else{
+        $booted = false;
+        $this->domains->map(function (Domain $domain) use(& $booted) {
+            if($domain->active()) {
+                $booted = true;
+                $domain->boot();
+            }
+        });
+        if(!$booted){
             throw new DomainNotFoundException();
         }
     }

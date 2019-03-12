@@ -8,21 +8,17 @@
 
 namespace ZoranWang\LaraRoutesManager;
 
-
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\Router;
+use Symfony\Component\HttpFoundation\Request;
+
 
 /**
  * @property-read string $version
+ * @property-read Domain $domain
  * */
 abstract class RouteGenerator
 {
-    /**
-     * @var string $router
-     * */
-    protected $router  = null;
-
     /**
      * @var [] $middleware 中间件
      * */
@@ -58,7 +54,22 @@ abstract class RouteGenerator
      * */
     protected $domain = null;
 
-    public function __construct($app, Domain  $domain, Gateway $gateway, string $namespace, string $version, string $auth, array $middleware, string $router)
+    /**
+     * @var Request $request
+     * */
+    protected $request = null;
+
+    /**
+     * @param Container $app
+     * @param Domain $domain
+     * @param Gateway $gateway
+     * @param string $namespace
+     * @param string $version
+     * @param string $auth
+     * @param array $middleware
+     * @param Request $request
+     */
+    public function __construct($app, Domain  $domain, Gateway $gateway, string $namespace, string $version, string $auth, array $middleware, $request)
     {
         $this->app = $app;
         $this->domain = $domain;
@@ -66,52 +77,36 @@ abstract class RouteGenerator
         $this->version = $version;
         $this->gateway = $gateway;
         $this->middleware = $middleware;
-        $this->router = $router;
         $this->auth = $auth;
+        $this->request = $request;
     }
 
     /**
      * 路由规则生成方法（加载路由规则）
+     * @param Router $router
      * @throws RouterNotFoundException
-     * */
-    public function generateRoutes()
+     */
+    public function generateRoutes($router)
     {
         /** @var Router $router */
         try {
-            /** @var Router $router */
-            $router = $this->app->make($this->router);
-
-            $router->domain($this->domain->domain)->prefix("$this->version/$this->gateway");
-        } catch (BindingResolutionException $e) {
+            $router->group(['namespace' => $this->namespace, 'middleware' => $this->middleware], function ($router) {
+                /** @var Router $router */
+                $router->group(['auth' => $this->auth], function ($router) {
+                    $this->auth($router);
+                });
+                $this->normal($router);
+            });
+        } catch (\Exception $e) {
             throw new RouterNotFoundException();
         }
     }
 
-    public function isActive()
+    public function active()
     {
-        return false;
-    }
-
-    /**
-     * @param Router $router
-     * */
-    protected function addDomainToRouter($router)
-    {
-        $router->domain($this->domain->domain)->middleware($this->domain->middleware)->group(function (Router $router) {
-            $this->addGatewayToRouter($router);
-        });
-    }
-
-    /**
-     * @param Router $router
-     * */
-    protected function addGatewayToRouter($router)
-    {
-        $prefix = $this->version ? "{$this->version}/{$this->gateway->gateway}" : $this->gateway->gateway;
-       $router->prefix($prefix)->middleware($this->gateway->middleware)->group(function ($router) {
-           $this->auth($router);
-           $this->normal($router);
-       });
+        $path = $this->version ? "$this->version/$this->gateway" : $this->gateway;
+        $path = trim($path, '/');
+        return preg_match("$/^$path/", trim($this->domain->path, '/'));
     }
 
     public function __get($name)
@@ -131,4 +126,5 @@ abstract class RouteGenerator
      * @param Router $router
      * */
     abstract protected function normal($router);
+
 }

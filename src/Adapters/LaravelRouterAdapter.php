@@ -9,25 +9,41 @@
 namespace ZoranWang\LaraRoutesManager\Adapters;
 
 
-class LaravelRouterAdapter implements RouterAdapter
+use function Clue\StreamFilter\fun;
+use Illuminate\Routing\Router;
+use Illuminate\Routing\RouteRegistrar;
+use ZoranWang\LaraRoutesManager\RouteGenerator;
+
+class LaravelRouterAdapter extends RouterAdapter
 {
-    public function domain(string $domain)
-    {
-        // TODO: Implement domain() method.
-    }
+    /**
+     * @var Router|RouteRegistrar $router
+     * */
+    protected $router  = null;
 
-    public function gateway(string $gateway)
-    {
-        // TODO: Implement gateway() method.
-    }
 
-    public function version(string $version)
-    {
-        // TODO: Implement version() method.
-    }
-
-    public function group(\Closure $callback)
+    public function loadRoutes()
     {
         // TODO: Implement group() method.
+        $this->router->domain($this->routeDomain)->middleware($this->domainMiddleware)->group(function ($router) {
+            /** @var Router $router */
+            $router->group([
+                'prefix' => $this->routeVersion,
+                'middleware' => $this->versionMiddleware
+            ], function ($router) {
+                /** @var Router $router */
+                $router->group([
+                    'prefix' => $this->routeGateway,
+                    'middleware' => $this->gatewayMiddleware
+                ], function ($router) {
+                    /** @var Router $router */
+                    $this->routes->map(function ($routeGenerator) use($router) {
+                        /** @var RouteGenerator $routeGenerator */
+                        $routeGenerator->generateRoutes($router);
+                    });
+                });
+            });
+        });
+        return $this;
     }
 }

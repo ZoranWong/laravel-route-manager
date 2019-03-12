@@ -8,12 +8,14 @@
 
 namespace ZoranWang\LaraRoutesManager;
 use Illuminate\Support\Collection;
+use ZoranWang\LaraRoutesManager\Adapters\LaravelRouterAdapter;
+use ZoranWang\LaraRoutesManager\Adapters\LumenRouterAdapter;
 
 
 /**
  * @property-read string $gateway
  * @property-read string $middleware
- *
+ * @property-read boolean $inited
  * */
 class Gateway
 {
@@ -38,23 +40,23 @@ class Gateway
 
     protected $activeRouteGenerator = null;
 
+    /**
+     * @var RoutesManager $routesManager
+     * */
+    protected $routesManager = null;
+
+    protected $inited = false;
+
     public function __construct($app, Domain $domain, GatewayManager $manager, Collection $routes)
     {
         $this->app = $app;
         $this->domain = $domain;
         $this->manager = $manager;
-        $this->routes = $routes->map(function ($routeConfig) {
-            /** @var RouteGenerator $routeGenerator */
-            $routeGenerator = new $routeConfig['generator']();
-            if($routeGenerator->isActive()) {
-                $this->activeRouteGenerator = $routeGenerator;
-            }
-        });
     }
 
-    public function isActive()
+    public function active()
     {
-        return preg_match("/^{$this->gateway}/", trim($this->domain->path, '/')) || $this->activeRouteGenerator;
+        return preg_match("/^{$this->gateway}/", trim($this->domain->path, '/')) || $this->routesManager->active();
     }
 
     /**
@@ -62,16 +64,15 @@ class Gateway
      * */
     public function boot()
     {
-        $routeGeneratorClass = $this->routeGenerator;
-        $routeGeneratorClass = preg_replace($this->namespace, '', $routeGeneratorClass);
-        $routeGeneratorClass = preg_replace('\\', '/', $routeGeneratorClass);
-        if(!class_exists($this->routeGenerator)) {
-            $path = trim($this->root, '/').'/'.trim($routeGeneratorClass, '/').'.php';
-            /** @noinspection PhpIncludeInspection */
-            include_once base_path($path);
+        if($this->active()) {
+            $this->routesManager->boot();
+            $this->inited = true;
         }
-        /** @var RouteGenerator $generator */
-        $generator = new $this->routeGenerator();
-        $generator->generateRoutes();
+    }
+
+    public function __toString()
+    {
+        // TODO: Implement __toString() method.
+        return $this->gateway;
     }
 }

@@ -63,13 +63,13 @@ abstract class RouteGenerator
      * @param Container $app
      * @param Domain $domain
      * @param Gateway $gateway
-     * @param string $namespace
-     * @param string $version
-     * @param string $auth
+     * @param string|null $namespace
+     * @param string|null $version
+     * @param string|null $auth
      * @param array $middleware
      * @param Request $request
      */
-    public function __construct($app, Domain  $domain, Gateway $gateway, string $namespace, string $version, string $auth, array $middleware, $request)
+    public function __construct($app, Domain  $domain, Gateway $gateway, $namespace, $version, $auth, array $middleware, $request)
     {
         $this->app = $app;
         $this->domain = $domain;
@@ -105,8 +105,8 @@ abstract class RouteGenerator
     public function active()
     {
         $path = $this->version ? "$this->version/$this->gateway" : $this->gateway;
-        $path = trim($path, '/');
-        return preg_match("$/^$path/", trim($this->domain->path, '/'));
+        $path = '/^'.preg_replace('/\//', '\\/', trim($path, '/')).'/';
+        return preg_match($path, trim($this->domain->path, '/'));
     }
 
     public function __get($name)

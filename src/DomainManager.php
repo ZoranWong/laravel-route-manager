@@ -19,6 +19,8 @@ use Illuminate\Support\Collection;
  * @property-read string $domain
  * @property-read string $port
  * @property-read string $protocol
+ * @property-read string $root
+ * @property-read string $namespace
  * */
 class DomainManager
 {
@@ -126,7 +128,7 @@ class DomainManager
     {
         $booted = false;
         $this->domains->map(function (Domain $domain) use(& $booted) {
-            if($domain->active()) {
+            if($domain->active() || $this->app->runningInConsole()) {
                 $booted = true;
                 $domain->boot();
             }
@@ -134,6 +136,12 @@ class DomainManager
         if(!$booted){
             throw new DomainNotFoundException();
         }
+    }
+
+    public function __get($name)
+    {
+        // TODO: Implement __get() method.
+        return $this->{$name};
     }
 
 }

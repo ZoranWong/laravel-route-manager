@@ -39,8 +39,6 @@ class RoutesManagerServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        if(!$this->app->runningInConsole()) {
-            $this->app->get('domain')->boot();
-        }
+        $this->app->get('domain')->boot();
     }
 }

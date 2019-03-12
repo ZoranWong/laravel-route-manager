@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @property-read Collection|null $middleware
  * @property-read string $path
  * @property-read  string $serverName
+ * @property-read string $root
+ * @property-read string $namespace
  * */
 class Domain
 {
@@ -98,15 +100,15 @@ class Domain
      * @param string $request
      * @param array $gateways
      * @param array $providers
-     * @param string $serverName
-     * @param string $path
+     * @param string|null $serverName
+     * @param string|null $path
      * @param array|null $protocols
      * @param array|null $ports
      * @param string $protocol
      * @param string $port
      */
     public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers,
-                                string $serverName, string $path, array $protocols = null, array $ports = null, string $protocol = 'http', string $port = '80')
+                                $serverName, $path, $protocols = null, $ports = null, string $protocol = 'http', string $port = '80')
     {
         $this->app = $app;
         $this->manager = $manager;
@@ -117,8 +119,8 @@ class Domain
         $this->providers = collect($providers);
         $this->serverName = $serverName;
         $this->path = $path;
-        $this->protocols = $protocols;
-        $this->ports = $ports;
+        $this->protocols = $protocols ?: $this->protocols;
+        $this->ports = $ports ?: $this->ports;
         $this->protocol = $protocol;
         $this->port = $port;
         $this->initialization();
@@ -126,7 +128,7 @@ class Domain
 
     public function initialization()
     {
-        if($this->active() && !$this->inited) {
+        if($this->active() && !$this->inited || $this->app->runningInConsole()) {
             $this->inited = false;
             $this->providers->map(function ($provider) {
                 $this->app->register($provider);
@@ -146,7 +148,7 @@ class Domain
     public function __get($name)
     {
         // TODO: Implement __get() method.
-        return $this->{$name};
+        return isset($this->{$name}) ? $this->{$name} : $this->manager->{$name};
     }
 
     public function active()

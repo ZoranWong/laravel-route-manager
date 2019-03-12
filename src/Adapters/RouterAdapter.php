@@ -14,10 +14,6 @@ use ZoranWang\LaraRoutesManager\RouteGenerator;
 
 abstract class RouterAdapter
 {
-    /**
-     * @var RouteGenerator $routeGenerator
-     * */
-    protected $routeGenerator = null;
     protected $router = null;
     protected $routeVersion = null;
     protected $versionMiddleware = null;
@@ -69,7 +65,15 @@ abstract class RouterAdapter
     }
 
     public function active() {
-        return $this->routeGenerator->active();
+        $active = false;
+        $this->routes->map(function ($generator) use(&$active){
+
+                /** @var RouteGenerator $generator */
+                if($generator->active()){
+                    $active = true;
+                }
+        });
+        return $active;
     }
 
     abstract public function loadRoutes() ;

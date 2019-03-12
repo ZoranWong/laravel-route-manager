@@ -43,10 +43,10 @@ class GatewayManager
         $this->app = $app;
         $this->domain = $domain;
         $this->path = $this->domain->path;
-        $this->gateways = $gateways;
-        if(!empty($this->domain->gateways)) {
-            $this->domain->gateways->map(function ($config) {
-                $gateway = new Gateway($this->app, $this->domain, $this, collect($config['routes']));
+        $this->gateways = collect();
+        if(!empty($gateways)) {
+            $gateways->map(function ($config) {
+                $gateway = new Gateway($this->app, $config['gateway'], $this->domain, $this, collect($config['routes']));
                 $this->gateways->add($gateway);
             });
         }

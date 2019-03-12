@@ -8,8 +8,6 @@
 
 namespace ZoranWang\LaraRoutesManager;
 use Illuminate\Support\Collection;
-use ZoranWang\LaraRoutesManager\Adapters\LaravelRouterAdapter;
-use ZoranWang\LaraRoutesManager\Adapters\LumenRouterAdapter;
 
 
 /**
@@ -31,14 +29,16 @@ class Gateway
 
     protected $gateway = null;
 
+    protected $middleware = null;
+
+    protected $providers = null;
+
     /**
      * @var Collection|RouteGenerator[] $routes
      * */
     protected $routes = [];
 
     protected $manager = null;
-
-    protected $activeRouteGenerator = null;
 
     /**
      * @var RoutesManager $routesManager
@@ -47,11 +47,16 @@ class Gateway
 
     protected $inited = false;
 
-    public function __construct($app, Domain $domain, GatewayManager $manager, Collection $routes)
+    public function __construct($app, string $gateway, Domain $domain, GatewayManager $manager, Collection $routes)
     {
         $this->app = $app;
         $this->domain = $domain;
         $this->manager = $manager;
+        $this->gateway = $gateway;
+        $this->routes = $routes;
+        $this->root = $domain->root;
+        $this->namespace = $domain->namespace;
+        $this->routesManager = new RoutesManager($app,$domain->request, $domain, $this, $routes);
     }
 
     public function active()
@@ -64,7 +69,7 @@ class Gateway
      * */
     public function boot()
     {
-        if($this->active()) {
+        if($this->active() || $this->app->runningInConsole()) {
             $this->routesManager->boot();
             $this->inited = true;
         }
@@ -74,5 +79,11 @@ class Gateway
     {
         // TODO: Implement __toString() method.
         return $this->gateway;
+    }
+
+    public function __get($name)
+    {
+        // TODO: Implement __get() method.
+        return $this->{$name};
     }
 }

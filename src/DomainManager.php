@@ -94,7 +94,11 @@ class DomainManager
                 $config['gateways'],
                 $config['providers'],
                 $this->serverName,
-                $this->path);
+                $this->path,
+                $config['protocols'] ?: null,
+                $config['ports'] ?: null,
+                $this->protocol ?: null,
+                $this->port ?: null);
 
             $this->domains->add($domain);
         });

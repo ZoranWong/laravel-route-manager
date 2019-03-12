@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @property-read  string $serverName
  * @property-read string $root
  * @property-read string $namespace
+ * @property-read AdapterContainer $routerAdapters
  * */
 class Domain
 {

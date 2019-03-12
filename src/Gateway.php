@@ -47,9 +47,12 @@ class Gateway
 
     protected $inited = false;
 
-    public function __construct($app, string $gateway, $middleware, $providers, Domain $domain, GatewayManager $manager, Collection $routes)
+    protected $routerAdapters = null;
+
+    public function __construct($app, AdapterContainer $routerAdapters, string $gateway, $middleware, $providers, Domain $domain, GatewayManager $manager, Collection $routes)
     {
         $this->app = $app;
+        $this->routerAdapters = $routerAdapters;
         $this->domain = $domain;
         $this->manager = $manager;
         $this->gateway = $gateway;
@@ -58,7 +61,7 @@ class Gateway
         $this->routes = $routes;
         $this->root = $domain->root;
         $this->namespace = $domain->namespace;
-        $this->routesManager = new RoutesManager($app,$domain->request, $domain, $this, $routes);
+        $this->routesManager = new RoutesManager($app, $this->routerAdapters, $domain->request, $domain, $this, $routes);
     }
 
     public function active()

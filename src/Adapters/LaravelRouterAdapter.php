@@ -16,6 +16,7 @@ use ZoranWang\LaraRoutesManager\RouteGenerator;
 
 class LaravelRouterAdapter extends RouterAdapter
 {
+    const ROUTER_CLASS = Router::class;
     /**
      * @var Router|RouteRegistrar $router
      * */

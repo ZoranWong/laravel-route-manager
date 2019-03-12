@@ -11,6 +11,7 @@ namespace ZoranWang\LaraRoutesManager;
 
 
 use Illuminate\Support\ServiceProvider;
+use ZoranWang\LaraRoutesManager\Adapters\LaravelRouterAdapter;
 
 class RoutesManagerServiceProvider extends ServiceProvider
 {
@@ -28,13 +29,20 @@ class RoutesManagerServiceProvider extends ServiceProvider
 
             $this->commands(CreateRoutGeneratorCommand::class);
         }
-
+        $this->app->singleton('adapterContainer', function () {
+            return new AdapterContainer();
+        });
         $this->app->singleton('domain', function ($app) {
+            /** @var AdapterContainer $app */
+            $adapters = $app->get('adapterContainer');
+            $adapters["Illuminate\Routing\Router"] = LaravelRouterAdapter::class;
             return new DomainManager($app,
+                $adapters,
                 config('routes.domains'),
                 config('routes.root'),
                 config('routes.namespace'));
         });
+
     }
 
     public function boot()

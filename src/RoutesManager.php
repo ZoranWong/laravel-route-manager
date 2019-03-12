@@ -13,10 +13,8 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use ZoranWang\LaraRoutesManager\Adapters\DingoRouterAdapter;
-use ZoranWang\LaraRoutesManager\Adapters\LaravelRouterAdapter;
-use ZoranWang\LaraRoutesManager\Adapters\LumenRouterAdapter;
 use ZoranWang\LaraRoutesManager\Adapters\RouterAdapter;
+use ZoranWang\LaraRoutesManager\Exception\AdapterNotFoundException;
 
 class RoutesManager
 {
@@ -51,17 +49,21 @@ class RoutesManager
      * */
     protected $adapter = null;
 
+    protected $routerAdapters = null;
     /**
      * @param Container $app
+     * @param AdapterContainer $routerAdapters
      * @param Request $request
      * @param Domain $domain
      * @param Gateway $gateway
      * @param Collection $routes
+     * @throws
      */
-    public function __construct($app, $request, Domain $domain, Gateway $gateway, Collection $routes)
+    public function __construct($app, AdapterContainer $routerAdapters, $request, Domain $domain, Gateway $gateway, Collection $routes)
     {
         $this->app = $app;
         $this->root = $domain->root;
+        $this->routerAdapters = $routerAdapters;
         $this->domain = $domain;
         $this->gateway = $gateway;
         $this->request = $request;
@@ -95,22 +97,16 @@ class RoutesManager
 
             return $routeGenerator;
         });
-
-        switch (get_class($this->domain->router)) {
-            case "Dingo\Api\Routing\Router" : {
-                $this->adapter =new  DingoRouterAdapter($this->domain->router, $this->routes);
-                break;
-            }
-            case "Illuminate\Routing\Router" : {
-                $this->adapter = new  LaravelRouterAdapter($this->domain->router, $this->routes);
-                break;
-            }
-            case "Laravel\Lumen\Routing\Router" : {
-                $this->adapter = new LumenRouterAdapter($this->domain->router, $this->routes);
-                break;
-            }
+        $routeClass = get_class($this->domain->router);
+        if($routeClass) {
+            $this->adapter =new  $this->routerAdapters[$routeClass]($this->domain->router, $this->routes);
+        }else{
+            throw new AdapterNotFoundException("{$routeClass}没有查找到对应的是配置器");
         }
+
     }
+
+
 
     public function boot()
     {

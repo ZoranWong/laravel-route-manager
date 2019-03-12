@@ -21,6 +21,7 @@ use Illuminate\Support\Collection;
  * @property-read string $protocol
  * @property-read string $root
  * @property-read string $namespace
+ * @property-read AdapterContainer $routerAdapters
  * */
 class DomainManager
 {
@@ -63,11 +64,15 @@ class DomainManager
 
     protected $namespace = null;
 
-    public function __construct($app, array $domains, $root = 'app/Routes', $namespace = 'App\\Routes')
+    protected $routerAdapters = null;
+
+    public function __construct($app, AdapterContainer $adapterContainer, array $domains, $root = 'app/Routes', $namespace = 'App\\Routes')
     {
         $this->app = $app;
 
         $this->domains = collect();
+
+        $this->routerAdapters = $adapterContainer;
 
         if(isset($_SERVER['SERVER_NAME'])) {
             $this->serverName = $_SERVER['SERVER_NAME'];

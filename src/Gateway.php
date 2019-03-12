@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 
 /**
  * @property-read string $gateway
- * @property-read string $middleware
+ * @property-read array|null $middleware
  * @property-read boolean $inited
  * */
 class Gateway
@@ -47,12 +47,14 @@ class Gateway
 
     protected $inited = false;
 
-    public function __construct($app, string $gateway, Domain $domain, GatewayManager $manager, Collection $routes)
+    public function __construct($app, string $gateway, $middleware, $providers, Domain $domain, GatewayManager $manager, Collection $routes)
     {
         $this->app = $app;
         $this->domain = $domain;
         $this->manager = $manager;
         $this->gateway = $gateway;
+        $this->middleware = $middleware;
+        $this->providers  = collect($providers);
         $this->routes = $routes;
         $this->root = $domain->root;
         $this->namespace = $domain->namespace;

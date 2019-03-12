@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @property-read GatewayManager $gatewayManager
  * @property-read Request $request
  * @property-read Router $router
- * @property-read Collection|null $middleware
+ * @property-read array|null $middleware
  * @property-read string $path
  * @property-read  string $serverName
  * @property-read string $root
@@ -98,8 +98,9 @@ class Domain
      * @param string $domain
      * @param string $router
      * @param string $request
-     * @param array $gateways
-     * @param array $providers
+     * @param array|null $middleware
+     * @param array|null $gateways
+     * @param array|null $providers
      * @param string|null $serverName
      * @param string|null $path
      * @param array|null $protocols
@@ -107,7 +108,7 @@ class Domain
      * @param string $protocol
      * @param string $port
      */
-    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, array $gateways, array $providers,
+    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, $middleware, $gateways, $providers,
                                 $serverName, $path, $protocols = null, $ports = null, string $protocol = 'http', string $port = '80')
     {
         $this->app = $app;
@@ -115,6 +116,7 @@ class Domain
         $this->domain = $domain;
         $this->router = $this->app->get($router);
         $this->request = $this->app->get($request);
+        $this->middleware = $middleware;
         $this->gateways = collect($gateways);
         $this->providers = collect($providers);
         $this->serverName = $serverName;

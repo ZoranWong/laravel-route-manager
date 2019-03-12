@@ -90,15 +90,16 @@ class DomainManager
         collect($domains)->map(function ($config) {
             $domain = new Domain($this->app,
                 $this,
-                $config['domain'],
-                $config['router'],
-                $config['request'],
-                $config['gateways'],
-                $config['providers'],
+                $config['domain'] ?: null,
+                !empty($config['router']) ? $config['router']: 'router',
+                !empty($config['request']) ? $config['request'] : 'request',
+                !empty($config['middleware']) ? $config['middleware'] : null,
+                $config['gateways'] ?: null,
+                !empty($config['providers']) ? $config['providers'] : null,
                 $this->serverName,
                 $this->path,
-                $config['protocols'] ?: null,
-                $config['ports'] ?: null,
+                !empty($config['protocols']) ? $config['protocols'] : null,
+                !empty($config['ports']) ? $config['ports']: null,
                 $this->protocol ?: null,
                 $this->port ?: null);
 
@@ -141,7 +142,7 @@ class DomainManager
     public function __get($name)
     {
         // TODO: Implement __get() method.
-        return $this->{$name};
+        return isset($this->{$name}) ? $this->{$name} : null;
     }
 
 }

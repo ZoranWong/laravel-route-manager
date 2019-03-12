@@ -22,7 +22,7 @@ return [
                     'router' => env('API_ROUTER', 'router'),
                     'request' => env('API_REQUEST', 'request'),
                     'providers' => [],
-                    'middleware' => [],
+                    'middleware' => ['gateway'],
                     'auth' => null,
                     'routes' =>[
                         [

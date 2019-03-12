@@ -118,7 +118,8 @@ class RoutesManager
 
         if($this->adapter->active() || $this->app->runningInConsole()) {
             $booted = true;
-            $this->adapter->domain($this->domain, $this->domain->middleware)->gateway($this->gateway, $this->gateway->middleware)
+            $this->adapter->domain($this->domain, $this->domain->middleware ?: null)
+                ->gateway($this->gateway, $this->gateway->middleware)
                 ->loadRoutes();
         }
         if(!$booted) {

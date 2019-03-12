@@ -25,28 +25,31 @@ class LaravelRouterAdapter extends RouterAdapter
     public function loadRoutes()
     {
         // TODO: Implement group() method.
-        $this->router->domain($this->routeDomain)
-            ->middleware($this->domainMiddleware)
-            ->group(function ($router) {
+        $router = $this->router->domain($this->routeDomain);
+        if(!empty($this->domainMiddleware))
+            $router = $router->middleware($this->domainMiddleware);
+        $router->group(function ($router) {
+            /** @var Router $router */
+            $this->routes->map(function ($routeGenerator) use($router) {
+                /** @var RouteGenerator $routeGenerator */
+                $version = $routeGenerator->version;
                 /** @var Router $router */
-                $this->routes->map(function ($routeGenerator) use($router) {
-                    /** @var RouteGenerator $routeGenerator */
-                    $version = $routeGenerator->version;
+                $router->group([
+                    'prefix' => $version,
+                ], function ($router) use ($routeGenerator){
                     /** @var Router $router */
-                    $router->group([
-                        'prefix' => $version,
-                    ], function ($router) use ($routeGenerator){
-                        /** @var Router $router */
-                        $router->group([
-                            'prefix' => $this->routeGateway,
-                            'middleware' => $this->gatewayMiddleware
-                        ], function ($router) use ($routeGenerator){
+                    $gatewayGroup = [
+                        'prefix' => $this->routeGateway,
+                    ];
+                    if(!empty($this->gatewayMiddleware))
+                        $gatewayGroup['middleware'] = $this->gatewayMiddleware;
+                    $router->group($gatewayGroup, function ($router) use ($routeGenerator){
 
-                            $routeGenerator->generateRoutes($router);
-                        });
+                        $routeGenerator->generateRoutes($router);
                     });
-
                 });
+
+            });
         });
         return $this;
     }

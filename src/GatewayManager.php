@@ -9,7 +9,6 @@
 namespace ZoranWang\LaraRoutesManager;
 
 
-use function Clue\StreamFilter\fun;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;

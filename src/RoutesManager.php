@@ -59,7 +59,7 @@ class RoutesManager
      * @param Collection $routes
      * @throws
      */
-    public function __construct($app, AdapterContainer $routerAdapters, $request, Domain $domain, Gateway $gateway, Collection $routes)
+    public function __construct(Container $app, AdapterContainer $routerAdapters, Request $request, Domain $domain, Gateway $gateway, Collection $routes)
     {
         $this->app = $app;
         $this->root = $domain->root;

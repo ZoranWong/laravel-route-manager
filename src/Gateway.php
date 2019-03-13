@@ -7,6 +7,7 @@
  */
 
 namespace ZoranWang\LaraRoutesManager;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
 
 
@@ -49,7 +50,7 @@ class Gateway
 
     protected $routerAdapters = null;
 
-    public function __construct($app, AdapterContainer $routerAdapters, string $gateway, $middleware, $providers, Domain $domain, GatewayManager $manager, Collection $routes)
+    public function __construct(Container $app, AdapterContainer $routerAdapters, string $gateway, ?array $middleware, ?array $providers, Domain $domain, GatewayManager $manager, Collection $routes)
     {
         $this->app = $app;
         $this->routerAdapters = $routerAdapters;

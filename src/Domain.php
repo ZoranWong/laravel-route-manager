@@ -109,8 +109,8 @@ class Domain
      * @param string $protocol
      * @param string $port
      */
-    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, $middleware, $gateways, $providers,
-                                $serverName, $path, $protocols = null, $ports = null, string $protocol = 'http', string $port = '80')
+    public function __construct(Container $app, DomainManager $manager, string $domain, string $router, string $request, ?array $middleware, ?array $gateways, ?array $providers,
+                                ?string $serverName, ?string $path, ?array $protocols = null, ?array $ports = null, string $protocol = 'http', string $port = '80')
     {
         $this->app = $app;
         $this->manager = $manager;

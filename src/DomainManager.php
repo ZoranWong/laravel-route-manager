@@ -66,7 +66,7 @@ class DomainManager
 
     protected $routerAdapters = null;
 
-    public function __construct($app, AdapterContainer $adapterContainer, array $domains, $root = 'app/Routes', $namespace = 'App\\Routes')
+    public function __construct(Container $app, AdapterContainer $adapterContainer, array $domains, string $root = 'app/Routes', string $namespace = 'App\\Routes')
     {
         $this->app = $app;
 

@@ -28,7 +28,7 @@ abstract class RouterAdapter
      * */
     protected $routes = [];
 
-    public function __construct($router, $routes = null)
+    public function __construct($router, ?Collection $routes = null)
     {
         $this->router = $router;
         $this->routes = $routes;
@@ -39,7 +39,7 @@ abstract class RouterAdapter
      * @param string|array|null $middleware
      * @return RouterAdapter
      */
-    public function domain(string $domain, $middleware = null)
+    public function domain(string $domain, ?array $middleware = null)
     {
         // TODO: Implement domain() method.
         $this->routeDomain = $domain;
@@ -47,7 +47,7 @@ abstract class RouterAdapter
         return $this;
     }
 
-    public function gateway(string $gateway, $middleware)
+    public function gateway(string $gateway, ?array $middleware)
     {
         // TODO: Implement gateway() method.
         $this->routeGateway = $gateway;
@@ -55,7 +55,7 @@ abstract class RouterAdapter
         return $this;
     }
 
-    public function version(string $version, $middleware)
+    public function version(string $version, ?array $middleware)
     {
 
         // TODO: Implement version() method.

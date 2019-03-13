@@ -69,7 +69,7 @@ abstract class RouteGenerator
      * @param array $middleware
      * @param Request $request
      */
-    public function __construct($app, Domain  $domain, Gateway $gateway, $namespace, $version, $auth, array $middleware, $request)
+    public function __construct(Container $app, Domain  $domain, Gateway $gateway, ?string $namespace, ?string $version, ?string $auth, array $middleware, Request $request)
     {
         $this->app = $app;
         $this->domain = $domain;

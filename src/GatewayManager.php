@@ -40,7 +40,7 @@ class GatewayManager
 
     protected $routerAdapters = null;
 
-    public function __construct($app, Domain $domain, Collection $gateways)
+    public function __construct(Container $app, Domain $domain, Collection $gateways)
     {
         $this->app = $app;
         $this->domain = $domain;

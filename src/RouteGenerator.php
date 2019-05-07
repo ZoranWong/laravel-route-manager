@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @property-read string $version
  * @property-read Domain $domain
+ * @property-read Router $router
  * */
 abstract class RouteGenerator
 {
@@ -60,6 +61,11 @@ abstract class RouteGenerator
     protected $request = null;
 
     /**
+     * @var Router $router
+     * */
+    protected $router = null;
+
+    /**
      * @param Container $app
      * @param Domain $domain
      * @param Gateway $gateway
@@ -67,9 +73,11 @@ abstract class RouteGenerator
      * @param string|null $version
      * @param string|null $auth
      * @param array $middleware
-     * @param Request $request
+     * @param string $request
+     * @param string $router
      */
-    public function __construct(Container $app, Domain  $domain, Gateway $gateway, ?string $namespace, ?string $version, ?string $auth, array $middleware, Request $request)
+    public function __construct(Container $app, Domain $domain, Gateway $gateway, ?string $namespace,
+                                ?string $version, ?string $auth, array $middleware, string $request, string $router)
     {
         $this->app = $app;
         $this->domain = $domain;
@@ -78,19 +86,19 @@ abstract class RouteGenerator
         $this->gateway = $gateway;
         $this->middleware = $middleware;
         $this->auth = $auth;
-        $this->request = $request;
+        $this->request = $app->get($request);
+        $this->router = $app->get($router);
     }
 
     /**
      * 路由规则生成方法（加载路由规则）
-     * @param Router $router
      * @throws RouterNotFoundException
      */
-    public function generateRoutes($router)
+    public function generateRoutes()
     {
         /** @var Router $router */
         try {
-            $router->group(['namespace' => $this->namespace, 'middleware' => $this->middleware], function ($router) {
+            $this->router->group(['namespace' => $this->namespace, 'middleware' => $this->middleware], function ($router) {
                 /** @var Router $router */
                 $router->group(['auth' => $this->auth], function ($router) {
                     $this->auth($router);
@@ -105,7 +113,7 @@ abstract class RouteGenerator
     public function active()
     {
         $path = $this->version ? "$this->version/$this->gateway" : $this->gateway;
-        $path = '/^'.preg_replace('/\//', '\\/', trim($path, '/')).'/';
+        $path = '/^' . preg_replace('/\//', '\\/', trim($path, '/')) . '/';
         return preg_match($path, trim($this->domain->path, '/'));
     }
 

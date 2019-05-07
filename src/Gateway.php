@@ -62,7 +62,7 @@ class Gateway
         $this->routes = $routes;
         $this->root = $domain->root;
         $this->namespace = $domain->namespace;
-        $this->routesManager = new RoutesManager($app, $this->routerAdapters, $domain->request, $domain, $this, $routes);
+        $this->routesManager = new RoutesManager($app, $this->routerAdapters, $domain, $this, $routes);
     }
 
     public function active()

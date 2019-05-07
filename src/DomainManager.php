@@ -96,8 +96,6 @@ class DomainManager
             $domain = new Domain($this->app,
                 $this,
                 $config['domain'] ?: null,
-                !empty($config['router']) ? $config['router']: 'router',
-                !empty($config['request']) ? $config['request'] : 'request',
                 !empty($config['middleware']) ? $config['middleware'] : null,
                 $config['gateways'] ?: null,
                 !empty($config['providers']) ? $config['providers'] : null,

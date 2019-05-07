@@ -9,12 +9,13 @@
 namespace ZoranWang\LaraRoutesManager\Adapters;
 
 
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use ZoranWang\LaraRoutesManager\RouteGenerator;
 
 abstract class RouterAdapter
 {
-    protected $router = null;
+    protected $app = null;
     protected $routeVersion = null;
     protected $versionMiddleware = null;
     protected $routeDomain = null;
@@ -28,9 +29,9 @@ abstract class RouterAdapter
      * */
     protected $routes = [];
 
-    public function __construct($router, ?Collection $routes = null)
+    public function __construct(Application $app, ?Collection $routes = null)
     {
-        $this->router = $router;
+        $this->app = $app;
         $this->routes = $routes;
     }
 

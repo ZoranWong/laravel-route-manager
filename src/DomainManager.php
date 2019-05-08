@@ -101,8 +101,8 @@ class DomainManager
                 !empty($config['providers']) ? $config['providers'] : null,
                 $this->serverName,
                 $this->path,
-                !empty($config['protocols']) ? $config['protocols'] : null,
-                !empty($config['ports']) ? $config['ports']: null,
+                !empty($config['protocols']) ? (array)$config['protocols'] : null,
+                !empty($config['ports']) ? (array)$config['ports']: null,
                 $this->protocol ?: null,
                 $this->port ?: null);
 

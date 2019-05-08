@@ -82,7 +82,7 @@ class Domain
     /**
      * @var string[] $protocols 服务支持的协议
      * */
-    protected $protocols = ['http', 'https'];
+    protected $protocols = ['http/1.0', 'http/1.1', 'http/1.2'];
 
     /**
      * @var string[] $ports 服务部署网关
@@ -160,7 +160,23 @@ class Domain
 
     public function active()
     {
-        return !in_array($this->protocol, $this->protocols) && !in_array($this->port, $this->ports) && $this->domain === $this->serverName;
+        return $this->protocolIsSupport() && $this->portIsSupport() && $this->domain === $this->serverName;
+    }
+
+    protected function protocolIsSupport()
+    {
+        if(in_array(strtolower($this->protocol), $this->protocols)){
+            return true;
+        }
+        throw new ProtocolInvalidException("此服务不支持{$this->protocol}协议");
+    }
+
+    protected function portIsSupport()
+    {
+        if(in_array($this->port, $this->ports)){
+            return true;
+        }
+        throw new PortInvalidException("此服务未部署在{$this->port}端口");
     }
 
     public function __toString()

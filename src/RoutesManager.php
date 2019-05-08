@@ -41,9 +41,9 @@ class RoutesManager
     protected $root = null;
 
     /**
-     * @var RouterAdapter $adapter
+     * @var RouterAdapter[]|Collection $adapter
      * */
-    protected $adapter = null;
+    protected $adapters = null;
 
     protected $routerAdapters = null;
 
@@ -79,12 +79,12 @@ class RoutesManager
 
             /** @var RouteGenerator $routeGenerator */
             $routeGenerator = new $routeConfig['generator']($this->app, $this->domain, $this->gateway, $routeConfig['namespace'],
-                $routeConfig['version'], $routeConfig['auth'], $routeConfig['middleware'], $this->request);
+                $routeConfig['version'], $routeConfig['auth'], $routeConfig['middleware'], $routeConfig['request'], $routeConfig['router']);
 
             return $routeGenerator;
         });
 
-        $this->adapter = new  $this->routerAdapters[$routeClass]($app, $this->routes);
+        $this->adapters = $this->routerAdapters->adapterRoutes($this->routes);
 
     }
 
@@ -93,11 +93,14 @@ class RoutesManager
     {
         $booted = false;
 
-        if ($this->adapter->active() || $this->app->runningInConsole()) {
+        if ($this->active() || $this->app->runningInConsole()) {
             $booted = true;
-            $this->adapter->domain($this->domain, $this->domain->middleware ?: null)
-                ->gateway($this->gateway, $this->gateway->middleware)
-                ->loadRoutes();
+            $this->adapters->map(function ($adapter) {
+                /**@var RouterAdapter $adapter **/
+               $adapter->domain($this->domain, $this->domain->middleware ?: null)
+                   ->gateway($this->gateway, $this->gateway->middleware)
+                   ->loadRoutes();
+            });
         }
         if (!$booted) {
             throw new RouteNotFoundException();
@@ -109,7 +112,9 @@ class RoutesManager
      * */
     public function active()
     {
-        /** @var RouterAdapter $adapter */
-        return $this->adapter->active();
+        return $this->adapters->map(function ($adapter) {
+            /** @var RouterAdapter $adapter */
+            return ['active' => $adapter->active()];
+        })->where('active', '=', false)->isEmpty();
     }
 }

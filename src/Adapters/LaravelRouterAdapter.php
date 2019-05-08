@@ -25,27 +25,23 @@ class LaravelRouterAdapter extends RouterAdapter
 
     public function loadRoutes()
     {
+        /** @var RouteGenerator $routeGenerator */
+        $routeGenerator = $this->generator;
+        $version = $routeGenerator->version;
+        $router = $routeGenerator->router;
         /** @var Router $router */
-        $this->routes->map(function ($routeGenerator) use ($router) {
-            /** @var RouteGenerator $routeGenerator */
-            $version = $routeGenerator->version;
-            $router = $routeGenerator->router;
+        $router = $router->domain($this->routeDomain);
+        if (!empty($this->domainMiddleware))
+            $router = $router->middleware($this->domainMiddleware);
+        $router->prefix($version)->group(function ($router) use($routeGenerator) {
             /** @var Router $router */
-            $router = $router->domain($this->routeDomain);
-            if (!empty($this->domainMiddleware))
-                $router = $router->middleware($this->domainMiddleware);
-            $router->group([
-                'prefix' => $version,
-            ], function ($router) use ($routeGenerator) {
-                /** @var Router $router */
-                $gatewayGroup = [
-                    'prefix' => $this->routeGateway,
-                ];
-                if (!empty($this->gatewayMiddleware))
-                    $gatewayGroup['middleware'] = $this->gatewayMiddleware;
-                $router->group($gatewayGroup, function ($router) use ($routeGenerator) {
-                    $routeGenerator->generateRoutes($router);
-                });
+            $gatewayGroup = [
+                'prefix' => $this->routeGateway,
+            ];
+            if (!empty($this->gatewayMiddleware))
+                $gatewayGroup['middleware'] = $this->gatewayMiddleware;
+            $router->group($gatewayGroup, function ($router) use ($routeGenerator) {
+                $routeGenerator->generateRoutes($router);
             });
         });
         return $this;

@@ -9,6 +9,7 @@
 namespace ZoranWang\LaraRoutesManager;
 
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @property-read string $version
  * @property-read Domain $domain
  * @property-read Router $router
+ * @property-read Application $app
  * */
 abstract class RouteGenerator
 {

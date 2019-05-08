@@ -33,7 +33,7 @@ class RoutesManagerServiceProvider extends ServiceProvider
         });
         /** @var AdapterContainer $adapterContainer */
         $adapterContainer = $this->app->get('adapterContainer');
-        $adapters = $adapterContainer;
+        $adapters = config('routes.adapters');
         $adapterContainer->registerAdapters($adapters);
         $this->app->singleton('domain', function ($app) use ($adapterContainer) {
             return new DomainManager($app,

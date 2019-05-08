@@ -25,14 +25,14 @@ abstract class RouterAdapter
     protected $gatewayMiddleware = null;
 
     /**
-     * @var Collection|RouteGenerator[]
+     * @var RouteGenerator $generator
      * */
-    protected $routes = [];
+    protected $generator = [];
 
-    public function __construct(Application $app, ?Collection $routes = null)
+    public function __construct(RouteGenerator $generator = null)
     {
-        $this->app = $app;
-        $this->routes = $routes;
+        $this->app = $generator->app;
+        $this->generator = $generator;
     }
 
     /**
@@ -67,13 +67,9 @@ abstract class RouterAdapter
 
     public function active() {
         $active = false;
-        $this->routes->map(function ($generator) use(&$active){
-
-                /** @var RouteGenerator $generator */
-                if($generator->active()){
-                    $active = true;
-                }
-        });
+        if($this->generator->active()){
+            $active = true;
+        }
         return $active;
     }
 

@@ -38,6 +38,6 @@ return [
     'root' => 'app/Routes',
     'namespace' => 'App\\Routes',
     'adapters' => [
-        '\Illuminate\Routing\Router' => '\ZoranWang\LaraRoutesManager\Adapters\LaravelRouterAdapter'
+        '\\Illuminate\\Routing\\Router' => '\\ZoranWang\\LaraRoutesManager\\Adapters\\LaravelRouterAdapter'
     ]
 ];

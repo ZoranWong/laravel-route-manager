@@ -165,7 +165,7 @@ class Domain
 
     protected function protocolIsSupport()
     {
-        if(!$this->protocols || in_array(strtolower($this->protocol), $this->protocols)){
+        if(!$this->protocols || in_array(strtolower($this->protocol), $this->protocols) || $this->app->runningInConsole()){
             return true;
         }
         throw new ProtocolInvalidException("此服务不支持{$this->protocol}协议");
@@ -173,7 +173,7 @@ class Domain
 
     protected function portIsSupport()
     {
-        if(!$this->ports || in_array($this->port, $this->ports)){
+        if(!$this->ports || in_array($this->port, $this->ports) || $this->app->runningInConsole()){
             return true;
         }
         throw new PortInvalidException("此服务未部署在{$this->port}端口");

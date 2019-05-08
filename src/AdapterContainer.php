@@ -13,5 +13,10 @@ use Illuminate\Container\Container;
 
 class AdapterContainer extends Container
 {
-
+    public function registerAdapters(array $adapters)
+    {
+        foreach ($adapters as $class => $adapter) {
+            $this->bind($class, $adapter);
+        }
+    }
 }

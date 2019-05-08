@@ -126,8 +126,8 @@ class Domain
         $this->providers = collect($providers);
         $this->serverName = $serverName;
         $this->path = $path;
-        $this->protocols = $protocols ?: $this->protocols;
-        $this->ports = $ports ?: $this->ports;
+        $this->protocols = $protocols;
+        $this->ports = $ports;
         $this->protocol = $protocol;
         $this->port = $port;
         $this->initialization();
@@ -165,7 +165,7 @@ class Domain
 
     protected function protocolIsSupport()
     {
-        if(in_array(strtolower($this->protocol), $this->protocols)){
+        if(!$this->protocols || in_array(strtolower($this->protocol), $this->protocols)){
             return true;
         }
         throw new ProtocolInvalidException("此服务不支持{$this->protocol}协议");
@@ -173,7 +173,7 @@ class Domain
 
     protected function portIsSupport()
     {
-        if(in_array($this->port, $this->ports)){
+        if(!$this->ports || in_array($this->port, $this->ports)){
             return true;
         }
         throw new PortInvalidException("此服务未部署在{$this->port}端口");

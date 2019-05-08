@@ -11,7 +11,6 @@ namespace ZoranWang\LaraRoutesManager;
 
 
 use Illuminate\Support\ServiceProvider;
-use ZoranWang\LaraRoutesManager\Adapters\LaravelRouterAdapter;
 
 class RoutesManagerServiceProvider extends ServiceProvider
 {

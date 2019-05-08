@@ -63,10 +63,8 @@ class RoutesManager
         $this->routerAdapters = $routerAdapters;
         $this->domain = $domain;
         $this->gateway = $gateway;
-//        $this->request = $app->get();
         $this->rootNamespace = $domain->namespace;
         $this->routes = $routes->map(function ($routeConfig) {
-
             if (!class_exists($routeConfig['generator'])) {
                 /** @var RouteGenerator $routeGenerator */
                 $routeGeneratorClass = trim($routeConfig['generator'], '\\');
@@ -78,16 +76,7 @@ class RoutesManager
                 /** @noinspection PhpIncludeInspection */
                 include_once base_path($path);
             }
-            /**
-             * @param Container $app
-             * @param Domain $domain
-             * @param Gateway $gateway
-             * @param string $namespace
-             * @param string $version
-             * @param string $auth
-             * @param array $middleware
-             * @param Request $request
-             */
+
             /** @var RouteGenerator $routeGenerator */
             $routeGenerator = new $routeConfig['generator']($this->app, $this->domain, $this->gateway, $routeConfig['namespace'],
                 $routeConfig['version'], $routeConfig['auth'], $routeConfig['middleware'], $this->request);

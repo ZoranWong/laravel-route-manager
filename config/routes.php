@@ -28,7 +28,10 @@ return [
                             'auth' => null,
                             'middleware' => [],
                             'providers' => [],
-                            'version' => 'v1'
+                            'version' => [
+                                'value' => 'v1',
+                                'in_header' => true
+                            ]
                         ]
                     ]
                 ]

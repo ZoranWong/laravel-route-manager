@@ -79,7 +79,8 @@ class RoutesManager
 
             /** @var RouteGenerator $routeGenerator */
             $routeGenerator = new $routeConfig['generator']($this->app, $this->domain, $this->gateway, $routeConfig['namespace'],
-                $routeConfig['version'], $routeConfig['auth'], $routeConfig['middleware'], $routeConfig['request'], $routeConfig['router']);
+                $routeConfig['version'], $routeConfig['auth'], $routeConfig['middleware'], $routeConfig['request'],
+                $routeConfig['router']);
 
             return $routeGenerator;
         });

@@ -68,7 +68,7 @@ class Gateway
     public function active()
     {
         $gateway = str_replace('/', '\\/', $this->gateway);
-        return preg_match("/^{$gateway}/", trim($this->domain->path, '/')) || $this->routesManager->active();
+        return preg_match("/^{$gateway}/", trim($this->domain->path, '/')) !== false || $this->routesManager->active();
     }
 
     /**

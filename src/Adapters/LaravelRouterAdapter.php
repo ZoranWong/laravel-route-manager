@@ -37,10 +37,13 @@ class LaravelRouterAdapter extends RouterAdapter
         $router = $router->domain($this->routeDomain);
         if (!empty($this->domainMiddleware))
             $router = $router->middleware($this->domainMiddleware);
-        if($routeGenerator->versionInHeader){
+        if ($routeGenerator->versionInHeader) {
             $v = $request->headers->get('version', null);
-            if (!$v || $v !== $version) {
-                throw new UnknownVersionException();
+            if (!$v) {
+                throw new UnknownVersionException('未携带版本号');
+            }
+            if ($v !== $version) {
+                return;
             }
             if (!$v && $version === $version) {
                 $router = $router->prefix($version);

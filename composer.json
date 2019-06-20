@@ -2,6 +2,7 @@
     "name": "zoran-wang/routes-manager",
     "description": "Use A manager to manage all routes for laravel/lumen",
     "license": "MIT",
+    "type": "library",
     "authors": [
         {
             "name": "ZoranWong",

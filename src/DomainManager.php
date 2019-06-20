@@ -21,6 +21,7 @@ use Illuminate\Support\Collection;
  * @property-read string $protocol
  * @property-read string $root
  * @property-read string $namespace
+ * @property-read AdapterContainer $routerAdapters
  * */
 class DomainManager
 {
@@ -63,11 +64,15 @@ class DomainManager
 
     protected $namespace = null;
 
-    public function __construct($app, array $domains, $root = 'app/Routes', $namespace = 'App\\Routes')
+    protected $routerAdapters = null;
+
+    public function __construct(Container $app, AdapterContainer $adapterContainer, array $domains, string $root = 'app/Routes', string $namespace = 'App\\Routes')
     {
         $this->app = $app;
 
         $this->domains = collect();
+
+        $this->routerAdapters = $adapterContainer;
 
         if(isset($_SERVER['SERVER_NAME'])) {
             $this->serverName = $_SERVER['SERVER_NAME'];
@@ -91,15 +96,13 @@ class DomainManager
             $domain = new Domain($this->app,
                 $this,
                 $config['domain'] ?: null,
-                !empty($config['router']) ? $config['router']: 'router',
-                !empty($config['request']) ? $config['request'] : 'request',
                 !empty($config['middleware']) ? $config['middleware'] : null,
                 $config['gateways'] ?: null,
                 !empty($config['providers']) ? $config['providers'] : null,
                 $this->serverName,
                 $this->path,
-                !empty($config['protocols']) ? $config['protocols'] : null,
-                !empty($config['ports']) ? $config['ports']: null,
+                !empty($config['protocols']) ? (array)$config['protocols'] : null,
+                !empty($config['ports']) ? (array)$config['ports']: null,
                 $this->protocol ?: null,
                 $this->port ?: null);
 

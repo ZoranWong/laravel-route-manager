@@ -20,23 +20,28 @@ use Symfony\Component\HttpFoundation\Request;
  * @property-read string $domain
  * @property-read Collection|null $gateways
  * @property-read GatewayManager $gatewayManager
- * @property-read Request $request
- * @property-read Router $router
  * @property-read array|null $middleware
  * @property-read string $path
  * @property-read  string $serverName
  * @property-read string $root
  * @property-read string $namespace
+ * @property-read AdapterContainer $routerAdapters
  * */
 class Domain
 {
+    /**
+     * @var string $domain 本实例支持的域名
+     * */
     protected $domain = null;
 
     /**
-     * @var ServiceProvider[]|Collection $providers
+     * @var ServiceProvider[]|Collection $providers 服务提供者
      * */
     protected $providers = [];
 
+    /**
+     * @var Collection|string[] 中间件数组
+     * */
     protected $middleware = [];
 
     /**
@@ -45,27 +50,17 @@ class Domain
     protected $app  = null;
 
     /**
-     * @var Request $request
-     * */
-    protected $request = null;
-
-    /**
-     * @var Router $router
-     * */
-    protected $router = null;
-
-    /**
      * @var GatewayManager $gatewayManager
      * */
     protected $gatewayManager = null;
 
     /**
-     * @var DomainManager $manager
+     * @var DomainManager $manager 域名管理器
      * */
     protected $manager = null;
 
     /**
-     * @var Collection|[]|null $gateways
+     * @var Collection|[]|null $gateways 网关数组
      * */
     protected $gateways = null;
 
@@ -84,45 +79,55 @@ class Domain
      * */
     protected $inited = false;
 
-    protected $protocols = ['http', 'https'];
+    /**
+     * @var string[] $protocols 服务支持的协议
+     * */
+    protected $protocols = ['http/1.0', 'http/1.1', 'http/1.2'];
 
+    /**
+     * @var string[] $ports 服务部署网关
+     * */
     protected $ports = ['80'];
 
+    /**
+     * @var $protocol 客户端发起访问的协议
+     * */
     protected $protocol = null;
 
+    /**
+     * @var $port 客户端发起访问的端口号
+     * */
     protected $port = null;
 
     /**
-     * @param Container $app
-     * @param DomainManager $manager
-     * @param string $domain
-     * @param string $router
-     * @param string $request
-     * @param array|null $middleware
-     * @param array|null $gateways
-     * @param array|null $providers
-     * @param string|null $serverName
-     * @param string|null $path
-     * @param array|null $protocols
-     * @param array|null $ports
-     * @param string $protocol
-     * @param string $port
+     * @param Container $app 程序原型上下文
+     * @param DomainManager $manager 域名管理器
+     * @param string $domain 实例支持的域名
+     * @param string $router 程序使用的路由器
+     * @param string $request 程序使用的请求接收器
+     * @param array|null $middleware 中间件
+     * @param array|null $gateways 网关
+     * @param array|null $providers 服务提供者
+     * @param string|null $serverName 客户端访问的域名
+     * @param string|null $path 客户端访问的路径
+     * @param array|null $protocols 实例支持的协议数组
+     * @param array|null $ports 实例支持的端口号数组
+     * @param string $protocol 访问者的协议
+     * @param string $port 访问者的端口
      */
-    public function __construct($app, DomainManager $manager, string $domain, string $router, string $request, $middleware, $gateways, $providers,
-                                $serverName, $path, $protocols = null, $ports = null, string $protocol = 'http', string $port = '80')
+    public function __construct(Container $app, DomainManager $manager, string $domain,  ?array $middleware, ?array $gateways, ?array $providers,
+                                ?string $serverName, ?string $path, ?array $protocols = null, ?array $ports = null, string $protocol = 'http', string $port = '80')
     {
         $this->app = $app;
         $this->manager = $manager;
         $this->domain = $domain;
-        $this->router = $this->app->get($router);
-        $this->request = $this->app->get($request);
         $this->middleware = $middleware;
         $this->gateways = collect($gateways);
         $this->providers = collect($providers);
         $this->serverName = $serverName;
         $this->path = $path;
-        $this->protocols = $protocols ?: $this->protocols;
-        $this->ports = $ports ?: $this->ports;
+        $this->protocols = $protocols;
+        $this->ports = $ports;
         $this->protocol = $protocol;
         $this->port = $port;
         $this->initialization();
@@ -155,7 +160,23 @@ class Domain
 
     public function active()
     {
-        return !in_array($this->protocol, $this->protocols) && !in_array($this->port, $this->ports) && $this->domain === $this->serverName;
+        return $this->protocolIsSupport() && $this->portIsSupport() && $this->domain === $this->serverName;
+    }
+
+    protected function protocolIsSupport()
+    {
+        if(!$this->protocols || in_array(strtolower($this->protocol), $this->protocols) || $this->app->runningInConsole()){
+            return true;
+        }
+        throw new ProtocolInvalidException("此服务不支持{$this->protocol}协议");
+    }
+
+    protected function portIsSupport()
+    {
+        if(!$this->ports || in_array($this->port, $this->ports) || $this->app->runningInConsole()){
+            return true;
+        }
+        throw new PortInvalidException("此服务未部署在{$this->port}端口");
     }
 
     public function __toString()

@@ -9,6 +9,7 @@
 namespace ZoranWang\LaraRoutesManager;
 
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -16,6 +17,10 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @property-read string $version
  * @property-read Domain $domain
+ * @property-read Router $router
+ * @property-read Application $app
+ * @property-read Request $request
+ * @property-read bool $versionInHeader
  * */
 abstract class RouteGenerator
 {
@@ -60,37 +65,51 @@ abstract class RouteGenerator
     protected $request = null;
 
     /**
+     * @var Router $router
+     * */
+    protected $router = null;
+
+    /**
+     * @var bool $versionInHeader
+     * */
+    protected $versionInHeader = false;
+
+    /**
      * @param Container $app
      * @param Domain $domain
      * @param Gateway $gateway
      * @param string|null $namespace
-     * @param string|null $version
+     * @param array $version
      * @param string|null $auth
      * @param array $middleware
-     * @param Request $request
+     * @param string $request
+     * @param string $router
      */
-    public function __construct($app, Domain  $domain, Gateway $gateway, $namespace, $version, $auth, array $middleware, $request)
+    public function __construct(Container $app, Domain $domain, Gateway $gateway, ?string $namespace,
+                                 $version, ?string $auth, array $middleware, string $request,
+                                string $router)
     {
         $this->app = $app;
         $this->domain = $domain;
         $this->namespace = $namespace;
-        $this->version = $version;
+        $this->version = is_string($version) ? $version : $version['value'];
         $this->gateway = $gateway;
         $this->middleware = $middleware;
         $this->auth = $auth;
-        $this->request = $request;
+        $this->request = $app->get($request);
+        $this->router = $app->get($router);
+        $this->versionInHeader = is_array($version) ? isset($version['in_header']) && $version['in_header'] : false;
     }
 
     /**
      * 路由规则生成方法（加载路由规则）
-     * @param Router $router
      * @throws RouterNotFoundException
      */
-    public function generateRoutes($router)
+    public function generateRoutes()
     {
         /** @var Router $router */
         try {
-            $router->group(['namespace' => $this->namespace, 'middleware' => $this->middleware], function ($router) {
+            $this->router->group(['namespace' => $this->namespace, 'middleware' => $this->middleware], function ($router) {
                 /** @var Router $router */
                 $router->group(['auth' => $this->auth], function ($router) {
                     $this->auth($router);
@@ -104,9 +123,9 @@ abstract class RouteGenerator
 
     public function active()
     {
-        $path = $this->version ? "$this->version/$this->gateway" : $this->gateway;
-        $path = '/^'.preg_replace('/\//', '\\/', trim($path, '/')).'/';
-        return preg_match($path, trim($this->domain->path, '/'));
+        $path = $this->gateway;
+        $path = '/^' . preg_replace('/\//', '\\/', trim($path, '/')) . '/';
+        return preg_match($path, trim($this->domain->path, '/')) !== false;
     }
 
     public function __get($name)

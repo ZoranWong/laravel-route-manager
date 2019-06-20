@@ -9,7 +9,6 @@
 namespace ZoranWang\LaraRoutesManager;
 
 
-use function Clue\StreamFilter\fun;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
@@ -38,15 +37,18 @@ class GatewayManager
 
     protected $path = null;
 
-    public function __construct($app, Domain $domain, Collection $gateways)
+    protected $routerAdapters = null;
+
+    public function __construct(Container $app, Domain $domain, Collection $gateways)
     {
         $this->app = $app;
         $this->domain = $domain;
         $this->path = $this->domain->path;
         $this->gateways = collect();
+        $this->routerAdapters = $domain->routerAdapters;
         if(!empty($gateways)) {
             $gateways->map(function ($config) {
-                $gateway = new Gateway($this->app, $config['gateway'],
+                $gateway = new Gateway($this->app, $this->routerAdapters, $config['gateway'],
                     !empty($config['middleware']) ? $config['middleware'] : null,
                     !empty($config['providers']) ? $config['providers'] : null,
                     $this->domain, $this, collect($config['routes']));

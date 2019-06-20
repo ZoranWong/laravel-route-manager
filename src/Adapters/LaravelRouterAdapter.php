@@ -10,45 +10,55 @@ namespace ZoranWang\LaraRoutesManager\Adapters;
 
 
 use function Clue\StreamFilter\fun;
+use Dingo\Api\Exception\UnknownVersionException;
 use Illuminate\Routing\Router;
 use Illuminate\Routing\RouteRegistrar;
 use ZoranWang\LaraRoutesManager\RouteGenerator;
 
 class LaravelRouterAdapter extends RouterAdapter
 {
+    const ROUTER_CLASS = Router::class;
     /**
      * @var Router|RouteRegistrar $router
      * */
-    protected $router  = null;
+    protected $router = null;
 
 
     public function loadRoutes()
     {
-        // TODO: Implement group() method.
-        $router = $this->router->domain($this->routeDomain);
-        if(!empty($this->domainMiddleware))
+        /** @var RouteGenerator $routeGenerator */
+        $routeGenerator = $this->generator;
+        $version = $routeGenerator->version;
+        $router = $routeGenerator->router;
+        $request = $routeGenerator->request;
+
+
+        /** @var Router $router */
+        $router = $router->domain($this->routeDomain);
+        if (!empty($this->domainMiddleware))
             $router = $router->middleware($this->domainMiddleware);
-        $router->group(function ($router) {
+        if ($routeGenerator->versionInHeader) {
+            $v = $request->headers->get('version', null);
+            if (!$v) {
+                throw new UnknownVersionException('未携带版本号');
+            }
+            if ($v !== $version) {
+                return;
+            }
+            if (!$v && $version === $version) {
+                $router = $router->prefix($version);
+            }
+        }
+
+        $router->group(function ($router) use ($routeGenerator) {
             /** @var Router $router */
-            $this->routes->map(function ($routeGenerator) use($router) {
-                /** @var RouteGenerator $routeGenerator */
-                $version = $routeGenerator->version;
-                /** @var Router $router */
-                $router->group([
-                    'prefix' => $version,
-                ], function ($router) use ($routeGenerator){
-                    /** @var Router $router */
-                    $gatewayGroup = [
-                        'prefix' => $this->routeGateway,
-                    ];
-                    if(!empty($this->gatewayMiddleware))
-                        $gatewayGroup['middleware'] = $this->gatewayMiddleware;
-                    $router->group($gatewayGroup, function ($router) use ($routeGenerator){
-
-                        $routeGenerator->generateRoutes($router);
-                    });
-                });
-
+            $gatewayGroup = [
+                'prefix' => $this->routeGateway,
+            ];
+            if (!empty($this->gatewayMiddleware))
+                $gatewayGroup['middleware'] = $this->gatewayMiddleware;
+            $router->group($gatewayGroup, function ($router) use ($routeGenerator) {
+                $routeGenerator->generateRoutes($router);
             });
         });
         return $this;

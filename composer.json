@@ -1,5 +1,5 @@
 {
-    "name": "zoran-wang/lara-routes-manager",
+    "name": "zoran-wang/routes-manager",
     "description": "Use A manager to manage all routes for laravel/lumen",
     "type": "metapackage",
     "license": "MIT",

@@ -103,9 +103,10 @@ abstract class RouteGenerator
 
     /**
      * 路由规则生成方法（加载路由规则）
+     * @param Router $router
      * @throws RouterNotFoundException
      */
-    public function generateRoutes()
+    public function generateRoutes($router)
     {
         /** @var Router $router */
         try {

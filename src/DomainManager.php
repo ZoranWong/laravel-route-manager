@@ -74,8 +74,8 @@ class DomainManager
 
         $this->routerAdapters = $adapterContainer;
 
-        if(isset($_SERVER['SERVER_NAME'])) {
-            $this->serverName = $_SERVER['SERVER_NAME'];
+        if(isset($_SERVER['HTTP_HOST'])) {
+            $this->serverName = $_SERVER['HTTP_HOST'];
         }
 
         if(isset($_SERVER['PATH_INFO'])) {
